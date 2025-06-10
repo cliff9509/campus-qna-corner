@@ -181,7 +181,7 @@ const Accommodation = () => {
                 <SelectItem value="all">All Prices</SelectItem>
                 <SelectItem value="budget">Budget (≤ $350)</SelectItem>
                 <SelectItem value="mid">Mid-range ($350-$500)</SelectItem>
-                <SelectItem value="premium">Premium (> $500)</SelectItem>
+                <SelectItem value="premium">Premium (&gt; $500)</SelectItem>
               </SelectContent>
             </Select>
 
