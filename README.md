@@ -3,6 +3,7 @@
 
 A comprehensive web platform designed specifically for university students to connect, share resources, and support each other throughout their academic journey.
 
+view live version here: [Lovable Project](https://lovable.dev/projects/336abcc0-a07f-4b8d-9eee-480ff615dc2b)
 ## 🌟 Features
 
 ### 🏠 Accommodation Finder
