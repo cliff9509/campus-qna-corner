@@ -147,15 +147,10 @@ If you encounter any issues or have questions:
 - Mobile app version
 - Integration with university systems
 - Event calendar and notifications
+- Panic button
+- jobs/ internship board
+- peer to peer services
+- wallet or payment gateway intergration
+- push notifications/ emails
+  
 
-## 🙏 Acknowledgments
-
-- Built with ❤️ for students, by students
-- Special thanks to the open-source community
-- Powered by modern web technologies
-
----
-
-**Happy Learning! 🎓✨**
-
-*Making student life easier, one feature at a time.*
