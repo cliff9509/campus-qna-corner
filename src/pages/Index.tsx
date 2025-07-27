@@ -75,9 +75,11 @@ const Index = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button size="lg" className="px-8 py-4 text-lg">
-                Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button size="lg" className="px-8 py-4 text-lg" asChild>
+                <Link to="/auth">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
               </Button>
               <Button size="lg" variant="outline" className="px-8 py-4 text-lg" asChild>
                 <Link to="/faqs">Learn More</Link>
@@ -209,8 +211,8 @@ const Index = () => {
             Join thousands of students who have already discovered the StudentHub advantage.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="px-8 py-4 text-lg">
-              Start Your Journey
+            <Button size="lg" variant="secondary" className="px-8 py-4 text-lg" asChild>
+              <Link to="/auth">Start Your Journey</Link>
             </Button>
             <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-white text-white hover:bg-white hover:text-blue-600" asChild>
               <Link to="/faqs">Have Questions?</Link>

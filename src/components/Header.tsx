@@ -1,12 +1,32 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Menu, X } from "lucide-react";
+import { GraduationCap, Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut, loading } = useAuth();
+  const { toast } = useToast();
   const location = useLocation();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to sign out. Please try again.',
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Signed out',
+        description: 'You have been successfully signed out.',
+      });
+    }
+  };
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -47,8 +67,29 @@ const Header = () => {
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline">Sign In</Button>
-            <Button>Get Started</Button>
+            {!loading && (
+              user ? (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <User className="h-4 w-4" />
+                    <span>Welcome back!</span>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-1" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button variant="outline" asChild>
+                    <Link to="/auth">Sign In</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link to="/auth">Get Started</Link>
+                  </Button>
+                </>
+              )
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -82,8 +123,29 @@ const Header = () => {
                 </Link>
               ))}
               <div className="px-3 py-2 space-y-2">
-                <Button variant="outline" className="w-full">Sign In</Button>
-                <Button className="w-full">Get Started</Button>
+                {!loading && (
+                  user ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 px-2 py-1 text-sm text-gray-600">
+                        <User className="h-4 w-4" />
+                        <span>Welcome back!</span>
+                      </div>
+                      <Button variant="outline" className="w-full" onClick={handleSignOut}>
+                        <LogOut className="h-4 w-4 mr-1" />
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Button variant="outline" className="w-full" asChild>
+                        <Link to="/auth">Sign In</Link>
+                      </Button>
+                      <Button className="w-full" asChild>
+                        <Link to="/auth">Get Started</Link>
+                      </Button>
+                    </>
+                  )
+                )}
               </div>
             </div>
           </div>
