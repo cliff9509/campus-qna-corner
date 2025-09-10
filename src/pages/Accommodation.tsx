@@ -1,11 +1,12 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Users, Wifi, Car, Utensils, Search, BedSingle, BedDouble } from "lucide-react";
+import { MapPin, Users, Wifi, Car, Utensils, Search, BedSingle, BedDouble, Eye } from "lucide-react";
 import Header from "@/components/Header";
 
 interface Hostel {
@@ -286,13 +287,21 @@ const Accommodation = () => {
                   ))}
                 </div>
 
-                <Button 
-                  className="w-full" 
-                  disabled={!hostel.available}
-                  variant={hostel.available ? "default" : "secondary"}
-                >
-                  {hostel.available ? "Book Now" : "Waitlist"}
-                </Button>
+                <div className="flex gap-2">
+                  <Link to={`/accommodation/${hostel.id}`} className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </Button>
+                  </Link>
+                  <Button 
+                    className="flex-1" 
+                    disabled={!hostel.available}
+                    variant={hostel.available ? "default" : "secondary"}
+                  >
+                    {hostel.available ? "Book Now" : "Waitlist"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
