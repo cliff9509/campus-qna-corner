@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Users, Wifi, Car, Utensils, Shield, Dumbbell, BookOpen, Home, BedSingle, BedDouble, Star } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Wifi, Car, Utensils, Shield, Dumbbell, BookOpen, Home, BedSingle, BedDouble, Star, Shirt } from "lucide-react";
 import Header from "@/components/Header";
 
 interface Hostel {
@@ -137,7 +137,7 @@ const HostelDetails = () => {
       case 'study room':
         return <BookOpen className="h-5 w-5" />;
       case 'laundry':
-        return <Home className="h-5 w-5" />;
+        return <Shirt className="h-5 w-5" />;
       case 'common room':
         return <Home className="h-5 w-5" />;
       default:
