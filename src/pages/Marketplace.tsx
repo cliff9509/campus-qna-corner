@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -371,8 +372,8 @@ const Marketplace = () => {
           <p className="text-gray-600 mb-6">
             Turn your unused items into cash and help fellow students save money.
           </p>
-          <Button size="lg">
-            Post an Item
+          <Button size="lg" asChild>
+            <Link to="/marketplace/post">Post an Item</Link>
           </Button>
         </div>
       </div>
