@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,51 +12,68 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-const PostItem = () => {
+const EditItem = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [itemLoading, setItemLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: "",
     price: "",
-    originalPrice: "",
+    original_price: "",
     category: "",
     condition: "",
     description: "",
     location: "",
-    sellerName: "",
-    sellerContact: "",
+    seller_name: "",
+    seller_contact: "",
   });
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (selectedImages.length + files.length > 5) {
-      toast({
-        title: "Too many images",
-        description: "You can upload maximum 5 images",
-        variant: "destructive",
-      });
+  useEffect(() => {
+    if (!user || !id) {
+      navigate("/marketplace");
       return;
     }
+    fetchItem();
+  }, [user, id]);
 
-    setSelectedImages((prev) => [...prev, ...files]);
-    
-    // Create preview URLs
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewUrls((prev) => [...prev, e.target?.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
+  const fetchItem = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('marketplace_items')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user?.id)
+        .single();
 
-  const removeImage = (index: number) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
-    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+      if (error) throw error;
+      
+      if (data) {
+        setFormData({
+          title: data.title,
+          price: data.price.toString(),
+          original_price: data.original_price?.toString() || "",
+          category: data.category,
+          condition: data.condition,
+          description: data.description,
+          location: data.location,
+          seller_name: data.seller_name,
+          seller_contact: data.seller_contact,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load item details",
+        variant: "destructive",
+      });
+      navigate("/marketplace");
+    } finally {
+      setItemLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -66,19 +83,11 @@ const PostItem = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to post an item",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
+    if (!user || !id) return;
     
     // Basic validation
     if (!formData.title || !formData.price || !formData.category || 
-        !formData.condition || !formData.description || !formData.sellerName || !formData.sellerContact) {
+        !formData.condition || !formData.description || !formData.seller_name || !formData.seller_contact) {
       toast({
         title: "Missing information",
         description: "Please fill in all required fields",
@@ -90,40 +99,34 @@ const PostItem = () => {
     setLoading(true);
     
     try {
-      // For now, we'll use placeholder image URLs since file upload requires storage bucket setup
-      const imageUrls = selectedImages.length > 0 
-        ? [`https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80`]
-        : [];
-
       const { error } = await supabase
         .from('marketplace_items')
-        .insert([{
-          user_id: user.id,
+        .update({
           title: formData.title,
           description: formData.description,
           price: parseFloat(formData.price),
-          original_price: formData.originalPrice ? parseFloat(formData.originalPrice) : null,
+          original_price: formData.original_price ? parseFloat(formData.original_price) : null,
           category: formData.category,
           condition: formData.condition,
-          location: formData.location || 'Not specified',
-          seller_name: formData.sellerName,
-          seller_contact: formData.sellerContact,
-          image_urls: imageUrls,
-          status: 'active'
-        }]);
+          location: formData.location,
+          seller_name: formData.seller_name,
+          seller_contact: formData.seller_contact,
+        })
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
       toast({
-        title: "Item posted successfully!",
-        description: "Your item is now live in the marketplace.",
+        title: "Item updated successfully!",
+        description: "Your changes have been saved.",
       });
       
       navigate("/marketplace");
     } catch (error) {
-      console.error("Error posting item:", error);
+      console.error("Error updating item:", error);
       toast({
-        title: "Failed to post item",
+        title: "Failed to update item",
         description: "Please try again later.",
         variant: "destructive",
       });
@@ -131,6 +134,19 @@ const PostItem = () => {
       setLoading(false);
     }
   };
+
+  if (itemLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-muted-foreground">Loading item details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -149,56 +165,12 @@ const PostItem = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Post an Item</h1>
-              <p className="text-muted-foreground">Sell your unused items to fellow students</p>
+              <h1 className="text-3xl font-bold text-foreground">Edit Item</h1>
+              <p className="text-muted-foreground">Update your marketplace listing</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Image Upload */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Photos</CardTitle>
-                <CardDescription>Add up to 5 photos of your item</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {previewUrls.map((url, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={url}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => removeImage(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  
-                  {selectedImages.length < 5 && (
-                    <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-muted-foreground/50 transition-colors">
-                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                      <span className="text-sm text-muted-foreground">Add Photo</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Item Details */}
             <Card>
               <CardHeader>
@@ -230,14 +202,14 @@ const PostItem = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="originalPrice">Original Price (optional)</Label>
+                    <Label htmlFor="original_price">Original Price (optional)</Label>
                     <Input
-                      id="originalPrice"
+                      id="original_price"
                       type="number"
                       step="0.01"
                       placeholder="0.00"
-                      value={formData.originalPrice}
-                      onChange={(e) => handleInputChange("originalPrice", e.target.value)}
+                      value={formData.original_price}
+                      onChange={(e) => handleInputChange("original_price", e.target.value)}
                     />
                   </div>
                 </div>
@@ -305,23 +277,23 @@ const PostItem = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sellerName">Your Name *</Label>
+                  <Label htmlFor="seller_name">Your Name *</Label>
                   <Input
-                    id="sellerName"
+                    id="seller_name"
                     placeholder="Your name as it will appear to buyers"
-                    value={formData.sellerName}
-                    onChange={(e) => handleInputChange("sellerName", e.target.value)}
+                    value={formData.seller_name}
+                    onChange={(e) => handleInputChange("seller_name", e.target.value)}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sellerContact">Contact Information *</Label>
+                  <Label htmlFor="seller_contact">Contact Information *</Label>
                   <Textarea
-                    id="sellerContact"
+                    id="seller_contact"
                     placeholder="Your phone number, email, or preferred contact method"
-                    value={formData.sellerContact}
-                    onChange={(e) => handleInputChange("sellerContact", e.target.value)}
+                    value={formData.seller_contact}
+                    onChange={(e) => handleInputChange("seller_contact", e.target.value)}
                     rows={3}
                     required
                   />
@@ -340,7 +312,7 @@ const PostItem = () => {
                 Cancel
               </Button>
               <Button type="submit" className="flex-1" disabled={loading}>
-                {loading ? "Posting..." : "Post Item"}
+                {loading ? "Updating..." : "Update Item"}
               </Button>
             </div>
           </form>
@@ -350,4 +322,4 @@ const PostItem = () => {
   );
 };
 
-export default PostItem;
+export default EditItem;

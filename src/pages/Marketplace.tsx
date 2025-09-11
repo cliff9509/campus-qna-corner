@@ -1,161 +1,114 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Heart, MessageCircle, Search, Clock, User } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MapPin, Heart, MessageCircle, Search, Clock, User, Edit } from "lucide-react";
 import Header from "@/components/Header";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface MarketplaceItem {
-  id: number;
+  id: string;
   title: string;
   price: number;
-  originalPrice?: number;
+  original_price?: number;
   category: string;
   condition: string;
-  seller: string;
+  seller_name: string;
+  seller_contact: string;
   location: string;
-  timePosted: string;
+  created_at: string;
   description: string;
-  image: string;
+  image_urls: string[];
   likes: number;
-  isLiked: boolean;
+  user_id: string;
 }
 
-const marketplaceItems: MarketplaceItem[] = [
-  {
-    id: 1,
-    title: "Calculus Textbook - Early Transcendentals",
-    price: 45,
-    originalPrice: 120,
-    category: "Books",
-    condition: "Good",
-    seller: "Sarah M.",
-    location: "Campus North",
-    timePosted: "2 hours ago",
-    description: "Used for Math 101. Minimal highlighting, no missing pages. Great condition!",
-    image: "photo-1507003211169-0a1dd7228f2d",
-    likes: 12,
-    isLiked: false
-  },
-  {
-    id: 2,
-    title: "MacBook Air M1 - 256GB",
-    price: 850,
-    originalPrice: 1200,
-    category: "Electronics",
-    condition: "Excellent",
-    seller: "Mike Chen",
-    location: "Campus East",
-    timePosted: "1 day ago",
-    description: "Lightly used MacBook Air, perfect for students. Includes charger and original box.",
-    image: "photo-1517336714731-489689fd1ca8",
-    likes: 28,
-    isLiked: true
-  },
-  {
-    id: 3,
-    title: "IKEA Study Desk - White",
-    price: 65,
-    originalPrice: 99,
-    category: "Furniture",
-    condition: "Good",
-    seller: "Emma Wilson",
-    location: "City Center",
-    timePosted: "3 days ago",
-    description: "Compact desk perfect for dorm rooms. Minor scratches but very functional.",
-    image: "photo-1586023492125-27b2c045efd7",
-    likes: 8,
-    isLiked: false
-  },
-  {
-    id: 4,
-    title: "Coffee Maker - Single Serve",
-    price: 25,
-    originalPrice: 45,
-    category: "Appliances",
-    condition: "Fair",
-    seller: "Alex Rodriguez",
-    location: "Campus South",
-    timePosted: "5 hours ago",
-    description: "Works perfectly, just upgraded to a larger one. Great for quick morning coffee.",
-    image: "photo-1495474472287-4d71bcdd2085",
-    likes: 6,
-    isLiked: false
-  },
-  {
-    id: 5,
-    title: "Chemistry Lab Goggles & Coat Set",
-    price: 20,
-    originalPrice: 35,
-    category: "Lab Equipment",
-    condition: "Good",
-    seller: "Lisa Park",
-    location: "Campus West",
-    timePosted: "1 week ago",
-    description: "Safety goggles and lab coat, barely used. Perfect for chemistry students.",
-    image: "photo-1532187863486-abf9dbad1b69",
-    likes: 4,
-    isLiked: false
-  },
-  {
-    id: 6,
-    title: "Bicycle - Mountain Bike",
-    price: 180,
-    originalPrice: 350,
-    category: "Sports",
-    condition: "Good",
-    seller: "Tom Johnson",
-    location: "Campus North",
-    timePosted: "2 days ago",
-    description: "Great for getting around campus. Recently serviced, new tires.",
-    image: "photo-1558618666-fcd25c85cd64",
-    likes: 15,
-    isLiked: false
-  },
-  {
-    id: 7,
-    title: "Gaming Headset - Wireless",
-    price: 75,
-    originalPrice: 120,
-    category: "Electronics",
-    condition: "Excellent",
-    seller: "David Kim",
-    location: "Campus East",
-    timePosted: "4 hours ago",
-    description: "High-quality wireless gaming headset. Perfect sound quality, barely used.",
-    image: "photo-1599669454699-248893623440",
-    likes: 22,
-    isLiked: true
-  },
-  {
-    id: 8,
-    title: "Mini Fridge - Compact",
-    price: 120,
-    originalPrice: 180,
-    category: "Appliances",
-    condition: "Good",
-    seller: "Rachel Green",
-    location: "City Center",
-    timePosted: "6 days ago",
-    description: "Perfect size for dorm rooms. Energy efficient and quiet operation.",
-    image: "photo-1571175443880-49e1d25b2bc5",
-    likes: 11,
-    isLiked: false
-  }
-];
-
 const Marketplace = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [condition, setCondition] = useState("all");
-  const [likedItems, setLikedItems] = useState<number[]>([2, 7]);
+  const [activeTab, setActiveTab] = useState("all");
+  const [allItems, setAllItems] = useState<MarketplaceItem[]>([]);
+  const [userItems, setUserItems] = useState<MarketplaceItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredItems = marketplaceItems.filter(item => {
+  useEffect(() => {
+    fetchAllItems();
+    if (user) {
+      fetchUserItems();
+    }
+  }, [user]);
+
+  const fetchAllItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('marketplace_items')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAllItems(data || []);
+    } catch (error) {
+      toast.error('Failed to load marketplace items');
+      console.error('Error fetching items:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserItems = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('marketplace_items')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUserItems(data || []);
+    } catch (error) {
+      toast.error('Failed to load your items');
+      console.error('Error fetching user items:', error);
+    }
+  };
+
+  const deleteItem = async (itemId: string) => {
+    try {
+      const { error } = await supabase
+        .from('marketplace_items')
+        .delete()
+        .eq('id', itemId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+      
+      toast.success('Item deleted successfully');
+      fetchUserItems();
+      fetchAllItems();
+    } catch (error) {
+      toast.error('Failed to delete item');
+      console.error('Error deleting item:', error);
+    }
+  };
+
+  const getItemsToShow = () => {
+    const items = activeTab === 'my-items' ? userItems : allItems;
+    return items;
+  };
+
+  const filteredItems = getItemsToShow().filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.description.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -171,12 +124,19 @@ const Marketplace = () => {
     return matchesSearch && matchesCategory && matchesPrice && matchesCondition;
   });
 
-  const toggleLike = (itemId: number) => {
-    setLikedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
-    );
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''} ago`;
   };
 
   const getConditionColor = (condition: string) => {
@@ -208,150 +168,208 @@ const Marketplace = () => {
           </p>
         </div>
 
-        {/* Search and Filter Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search items..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+        {/* Tabs for All Items vs My Items */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList>
+            <TabsTrigger value="all">All Items</TabsTrigger>
+            <TabsTrigger value="recent">Recently Posted</TabsTrigger>
+            {user && <TabsTrigger value="my-items">My Items</TabsTrigger>}
+          </TabsList>
+
+          <TabsContent value="all" className="mt-6">
+            {/* Search and Filter Section */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search items..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="Books">Books</SelectItem>
+                    <SelectItem value="Electronics">Electronics</SelectItem>
+                    <SelectItem value="Furniture">Furniture</SelectItem>
+                    <SelectItem value="Appliances">Appliances</SelectItem>
+                    <SelectItem value="Lab Equipment">Lab Equipment</SelectItem>
+                    <SelectItem value="Sports">Sports</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={priceRange} onValueChange={setPriceRange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Price Range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Prices</SelectItem>
+                    <SelectItem value="under50">Under $50</SelectItem>
+                    <SelectItem value="50to100">$50 - $100</SelectItem>
+                    <SelectItem value="over100">Over $100</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={condition} onValueChange={setCondition}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Condition" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Conditions</SelectItem>
+                    <SelectItem value="Excellent">Excellent</SelectItem>
+                    <SelectItem value="Good">Good</SelectItem>
+                    <SelectItem value="Fair">Fair</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="Books">Books</SelectItem>
-                <SelectItem value="Electronics">Electronics</SelectItem>
-                <SelectItem value="Furniture">Furniture</SelectItem>
-                <SelectItem value="Appliances">Appliances</SelectItem>
-                <SelectItem value="Lab Equipment">Lab Equipment</SelectItem>
-                <SelectItem value="Sports">Sports</SelectItem>
-              </SelectContent>
-            </Select>
 
-            <Select value={priceRange} onValueChange={setPriceRange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Price Range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Prices</SelectItem>
-                <SelectItem value="under50">Under $50</SelectItem>
-                <SelectItem value="50to100">$50 - $100</SelectItem>
-                <SelectItem value="over100">Over $100</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Results Summary */}
+            <div className="mb-6">
+              <p className="text-gray-600">
+                Showing {filteredItems.length} of {allItems.length} items
+              </p>
+            </div>
+          </TabsContent>
 
-            <Select value={condition} onValueChange={setCondition}>
-              <SelectTrigger>
-                <SelectValue placeholder="Condition" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Conditions</SelectItem>
-                <SelectItem value="Excellent">Excellent</SelectItem>
-                <SelectItem value="Good">Good</SelectItem>
-                <SelectItem value="Fair">Fair</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+          <TabsContent value="recent" className="mt-6">
+            <div className="mb-6">
+              <p className="text-gray-600">
+                Recently posted items (last 7 days)
+              </p>
+            </div>
+          </TabsContent>
 
-        {/* Results Summary */}
-        <div className="mb-6">
-          <p className="text-gray-600">
-            Showing {filteredItems.length} of {marketplaceItems.length} items
-          </p>
-        </div>
+          <TabsContent value="my-items" className="mt-6">
+            <div className="mb-6">
+              <p className="text-gray-600">
+                Your marketplace listings ({userItems.length} items)
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all duration-200">
-              <div className="relative">
-                <img
-                  src={`https://images.unsplash.com/${item.image}?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80`}
-                  alt={item.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="absolute top-4 right-4">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className={`p-2 rounded-full ${likedItems.includes(item.id) ? 'text-red-500' : 'text-gray-500'} bg-white hover:bg-gray-100`}
-                    onClick={() => toggleLike(item.id)}
-                  >
-                    <Heart className={`h-4 w-4 ${likedItems.includes(item.id) ? 'fill-current' : ''}`} />
-                  </Button>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Loading items...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredItems
+              .filter(item => {
+                if (activeTab === 'recent') {
+                  const weekAgo = new Date();
+                  weekAgo.setDate(weekAgo.getDate() - 7);
+                  return new Date(item.created_at) >= weekAgo;
+                }
+                return true;
+              })
+              .map((item) => (
+              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all duration-200">
+                <div className="relative">
+                  <img
+                    src={item.image_urls?.[0] || `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80`}
+                    alt={item.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute top-4 left-4">
+                    <Badge className={getConditionColor(item.condition)}>
+                      {item.condition}
+                    </Badge>
+                  </div>
+                  {activeTab === 'my-items' && user?.id === item.user_id && (
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="p-2 rounded-full bg-white hover:bg-gray-100"
+                        asChild
+                      >
+                        <Link to={`/marketplace/edit/${item.id}`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <div className="absolute top-4 left-4">
-                  <Badge className={getConditionColor(item.condition)}>
-                    {item.condition}
-                  </Badge>
-                </div>
-              </div>
-              
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg leading-tight">{item.title}</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-2xl font-bold text-green-600">
-                        ${item.price}
-                      </span>
-                      {item.originalPrice && (
-                        <span className="text-sm text-gray-500 line-through">
-                          ${item.originalPrice}
+                
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg leading-tight">{item.title}</CardTitle>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-2xl font-bold text-green-600">
+                          ${item.price}
                         </span>
+                        {item.original_price && (
+                          <span className="text-sm text-gray-500 line-through">
+                            ${item.original_price}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <User className="h-4 w-4" />
+                      <span>{item.seller_name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <MapPin className="h-4 w-4" />
+                      <span>{item.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Clock className="h-4 w-4" />
+                      <span>{getTimeAgo(item.created_at)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <Heart className="h-4 w-4" />
+                      <span>{item.likes}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {activeTab === 'my-items' && user?.id === item.user_id ? (
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={() => deleteItem(item.id)}
+                        >
+                          Delete
+                        </Button>
+                      ) : (
+                        <>
+                          <Button size="sm" variant="outline">
+                            <MessageCircle className="h-4 w-4 mr-1" />
+                            Message
+                          </Button>
+                          <Button size="sm">
+                            Buy Now
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
-                </div>
-              </CardHeader>
-
-              <CardContent>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <User className="h-4 w-4" />
-                    <span>{item.seller}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <MapPin className="h-4 w-4" />
-                    <span>{item.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Clock className="h-4 w-4" />
-                    <span>{item.timePosted}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <Heart className="h-4 w-4" />
-                    <span>{item.likes}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      <MessageCircle className="h-4 w-4 mr-1" />
-                      Message
-                    </Button>
-                    <Button size="sm">
-                      Buy Now
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {filteredItems.length === 0 && (
           <div className="text-center py-12">

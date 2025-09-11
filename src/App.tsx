@@ -12,6 +12,7 @@ import Accommodation from "./pages/Accommodation";
 import HostelDetails from "./pages/HostelDetails";
 import Marketplace from "./pages/Marketplace";
 import PostItem from "./pages/PostItem";
+import EditItem from "./pages/EditItem";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/accommodation/:id" element={<HostelDetails />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/marketplace/post" element={<PostItem />} />
+            <Route path="/marketplace/edit/:id" element={<EditItem />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/faqs" element={<FAQs />} />
             <Route path="/auth" element={<Auth />} />
