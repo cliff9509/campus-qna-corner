@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Heart, MessageCircle, Search, Clock, User, Edit } from "lucide-react";
+import { MapPin, Heart, MessageCircle, Search, Clock, User, Edit, Trash2, CheckCircle } from "lucide-react";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,6 +28,7 @@ interface MarketplaceItem {
   image_urls: string[];
   likes: number;
   user_id: string;
+  status: string;
 }
 
 const Marketplace = () => {
@@ -100,6 +101,25 @@ const Marketplace = () => {
     } catch (error) {
       toast.error('Failed to delete item');
       console.error('Error deleting item:', error);
+    }
+  };
+
+  const markAsSold = async (itemId: string) => {
+    try {
+      const { error } = await supabase
+        .from('marketplace_items')
+        .update({ status: 'sold' })
+        .eq('id', itemId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+      
+      toast.success('Item marked as sold');
+      fetchUserItems();
+      fetchAllItems();
+    } catch (error) {
+      toast.error('Failed to mark item as sold');
+      console.error('Error marking item as sold:', error);
     }
   };
 
@@ -285,6 +305,11 @@ const Marketplace = () => {
                     <Badge className={getConditionColor(item.condition)}>
                       {item.condition}
                     </Badge>
+                    {item.status === 'sold' && (
+                      <Badge className="bg-red-100 text-red-800 ml-2">
+                        SOLD
+                      </Badge>
+                    )}
                   </div>
                   {activeTab === 'my-items' && user?.id === item.user_id && (
                     <div className="absolute top-4 right-4 flex gap-2">
@@ -345,21 +370,34 @@ const Marketplace = () => {
                     </div>
                     <div className="flex gap-2">
                       {activeTab === 'my-items' && user?.id === item.user_id ? (
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
-                          onClick={() => deleteItem(item.id)}
-                        >
-                          Delete
-                        </Button>
+                        <>
+                          {item.status !== 'sold' && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => markAsSold(item.id)}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Mark as Sold
+                            </Button>
+                          )}
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => deleteItem(item.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </Button>
+                        </>
                       ) : (
                         <>
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" disabled={item.status === 'sold'}>
                             <MessageCircle className="h-4 w-4 mr-1" />
-                            Message
+                            {item.status === 'sold' ? 'Sold' : 'Message'}
                           </Button>
-                          <Button size="sm">
-                            Buy Now
+                          <Button size="sm" disabled={item.status === 'sold'}>
+                            {item.status === 'sold' ? 'Sold Out' : 'Buy Now'}
                           </Button>
                         </>
                       )}
