@@ -90,10 +90,31 @@ const PostItem = () => {
     setLoading(true);
     
     try {
-      // For now, we'll use placeholder image URLs since file upload requires storage bucket setup
-      const imageUrls = selectedImages.length > 0 
-        ? [`https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80`]
-        : [];
+      // Upload images to storage and get URLs
+      let imageUrls: string[] = [];
+      
+      if (selectedImages.length > 0) {
+        for (let i = 0; i < selectedImages.length; i++) {
+          const file = selectedImages[i];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${Date.now()}-${i}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('marketplace-images')
+            .upload(fileName, file);
+
+          if (uploadError) {
+            throw uploadError;
+          }
+
+          // Get public URL
+          const { data } = supabase.storage
+            .from('marketplace-images')
+            .getPublicUrl(fileName);
+
+          imageUrls.push(data.publicUrl);
+        }
+      }
 
       const { error } = await supabase
         .from('marketplace_items')
