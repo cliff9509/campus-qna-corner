@@ -13,7 +13,11 @@ import {
   Shield, 
   Clock,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Quote,
+  Sparkles,
+  Zap,
+  Heart
 } from "lucide-react";
 
 const Index = () => {
@@ -22,27 +26,41 @@ const Index = () => {
       icon: Home,
       title: "Student Accommodation",
       description: "Find verified, affordable housing near your university with flexible lease terms and student-friendly amenities.",
-      color: "bg-blue-100 text-blue-600"
+      gradient: "from-primary/20 to-primary/5"
     },
     {
       icon: ShoppingCart,
       title: "Student Marketplace", 
       description: "Buy and sell textbooks, furniture, electronics, and more within your trusted student community.",
-      color: "bg-green-100 text-green-600"
+      gradient: "from-accent/20 to-accent/5"
     },
     {
       icon: Users,
       title: "Community Support",
       description: "Connect with fellow students, get help with university life, and build lasting friendships.",
-      color: "bg-purple-100 text-purple-600"
+      gradient: "from-purple-500/20 to-purple-500/5"
     }
   ];
 
-  const stats = [
-    { number: "50,000+", label: "Active Students" },
-    { number: "200+", label: "Partner Universities" },
-    { number: "10,000+", label: "Properties Listed" },
-    { number: "4.8/5", label: "Average Rating" }
+  const testimonials = [
+    {
+      name: "Sarah Chen",
+      university: "Stanford University",
+      quote: "StudentHub helped me find the perfect room just 5 minutes from campus. The process was so smooth!",
+      avatar: "SC"
+    },
+    {
+      name: "Marcus Johnson",
+      university: "MIT",
+      quote: "I've saved hundreds on textbooks through the marketplace. Plus the community is incredibly supportive.",
+      avatar: "MJ"
+    },
+    {
+      name: "Emma Rodriguez",
+      university: "UC Berkeley",
+      quote: "The platform connects you with genuine students. I've made lifelong friends here!",
+      avatar: "ER"
+    }
   ];
 
   const benefits = [
@@ -55,58 +73,69 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <Header />
       
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <Badge className="mb-6 px-4 py-2" variant="secondary">
+        <div className="absolute inset-0 bg-gradient-hero opacity-50"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center animate-fade-in">
+            <Badge className="mb-6 px-6 py-2 bg-primary/10 text-primary border-primary/20 animate-pulse-glow" variant="outline">
+              <Sparkles className="h-4 w-4 mr-2" />
               Trusted by 50,000+ students nationwide
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
               Your Complete
-              <span className="text-blue-600"> Student Hub</span>
+              <span className="bg-gradient-primary bg-clip-text text-transparent"> Student Hub</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            
+            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
               Find the perfect accommodation, discover amazing deals in our marketplace, 
               and connect with your student community - all in one secure platform.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button size="lg" className="px-8 py-4 text-lg" asChild>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+              <Button size="lg" className="px-8 py-6 text-lg bg-gradient-primary hover:shadow-glow transition-all duration-300" asChild>
                 <Link to="/auth">
+                  <Zap className="mr-2 h-5 w-5" />
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="px-8 py-4 text-lg" asChild>
+              <Button size="lg" variant="outline" className="px-8 py-6 text-lg border-2 hover:bg-muted/50 transition-all duration-300" asChild>
                 <Link to="/faqs">Learn More</Link>
               </Button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 mb-1">{stat.number}</div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
-                </div>
-              ))}
+            {/* Floating Feature Pills */}
+            <div className="flex flex-wrap justify-center gap-4 mb-12">
+              <Badge variant="secondary" className="px-4 py-2 animate-float" style={{animationDelay: '0s'}}>
+                <Shield className="h-4 w-4 mr-2" />
+                100% Secure
+              </Badge>
+              <Badge variant="secondary" className="px-4 py-2 animate-float" style={{animationDelay: '1s'}}>
+                <Clock className="h-4 w-4 mr-2" />
+                24/7 Support
+              </Badge>
+              <Badge variant="secondary" className="px-4 py-2 animate-float" style={{animationDelay: '2s'}}>
+                <Heart className="h-4 w-4 mr-2" />
+                Student-First
+              </Badge>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
               Everything Students Need
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               From finding your next home to buying textbooks, we've got your student life covered.
             </p>
           </div>
@@ -115,15 +144,15 @@ const Index = () => {
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <Card key={index} className="h-full hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className={`w-12 h-12 rounded-lg ${feature.color} flex items-center justify-center mb-4`}>
-                      <Icon className="h-6 w-6" />
+                <Card key={index} className="h-full hover:shadow-elegant transition-all duration-300 bg-gradient-card border-0 group">
+                  <CardHeader className="pb-4">
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon className="h-8 w-8 text-primary" />
                     </div>
-                    <CardTitle className="text-xl">{feature.title}</CardTitle>
+                    <CardTitle className="text-2xl text-foreground group-hover:text-primary transition-colors">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-base leading-relaxed">
+                    <CardDescription className="text-base leading-relaxed text-muted-foreground">
                       {feature.description}
                     </CardDescription>
                   </CardContent>
@@ -134,67 +163,95 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+              What Students Say
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Real experiences from students who've transformed their university life.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="bg-card border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+                <CardContent className="p-8">
+                  <Quote className="h-8 w-8 text-primary mb-4" />
+                  <p className="text-muted-foreground mb-6 italic leading-relaxed">
+                    "{testimonial.quote}"
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center text-white font-semibold">
+                      {testimonial.avatar}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">{testimonial.name}</div>
+                      <div className="text-sm text-muted-foreground">{testimonial.university}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Benefits Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
                 Why Students Choose StudentHub
               </h2>
-              <p className="text-lg text-gray-600 mb-8">
+              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
                 We understand the unique challenges students face. That's why we've built 
                 a platform specifically designed for the student community.
               </p>
               
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 mb-8">
                 {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                    <span className="text-gray-700">{benefit}</span>
+                  <div key={index} className="flex items-center gap-4 group">
+                    <CheckCircle className="h-6 w-6 text-accent flex-shrink-0 group-hover:scale-110 transition-transform" />
+                    <span className="text-foreground group-hover:text-primary transition-colors">{benefit}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-8">
-                <Button size="lg" asChild>
-                  <Link to="/contact">Contact Us</Link>
-                </Button>
-              </div>
+              <Button size="lg" variant="default" className="bg-gradient-primary hover:shadow-glow" asChild>
+                <Link to="/contact">
+                  <Users className="mr-2 h-5 w-5" />
+                  Join Our Community
+                </Link>
+              </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Shield className="h-8 w-8 text-blue-600" />
-                  <div>
-                    <div className="font-semibold text-lg">100%</div>
-                    <div className="text-sm text-gray-600">Secure</div>
-                  </div>
+            <div className="grid grid-cols-2 gap-6">
+              <Card className="p-6 bg-gradient-card border-0 shadow-elegant hover:shadow-glow transition-all">
+                <div className="text-center">
+                  <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
+                  <div className="text-3xl font-bold text-foreground mb-2">100%</div>
+                  <div className="text-muted-foreground">Secure Transactions</div>
                 </div>
-                <p className="text-sm text-gray-600">All transactions protected</p>
               </Card>
 
-              <Card className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Clock className="h-8 w-8 text-green-600" />
-                  <div>
-                    <div className="font-semibold text-lg">24/7</div>
-                    <div className="text-sm text-gray-600">Support</div>
-                  </div>
+              <Card className="p-6 bg-gradient-card border-0 shadow-elegant hover:shadow-glow transition-all">
+                <div className="text-center">
+                  <Clock className="h-12 w-12 text-accent mx-auto mb-4" />
+                  <div className="text-3xl font-bold text-foreground mb-2">24/7</div>
+                  <div className="text-muted-foreground">Student Support</div>
                 </div>
-                <p className="text-sm text-gray-600">Always here to help</p>
               </Card>
 
-              <Card className="p-6 col-span-2">
-                <div className="flex items-center gap-3 mb-3">
-                  <Star className="h-8 w-8 text-yellow-500" />
-                  <div>
-                    <div className="font-semibold text-lg">4.8/5 Rating</div>
-                    <div className="text-sm text-gray-600">From 15,000+ reviews</div>
-                  </div>
+              <Card className="p-6 col-span-2 bg-gradient-card border-0 shadow-elegant hover:shadow-glow transition-all">
+                <div className="text-center">
+                  <Star className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+                  <div className="text-3xl font-bold text-foreground mb-2">4.8/5 Rating</div>
+                  <div className="text-muted-foreground">From 15,000+ student reviews</div>
                 </div>
-                <p className="text-sm text-gray-600">Trusted by students nationwide</p>
               </Card>
             </div>
           </div>
@@ -202,19 +259,22 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600">
+      <section className="py-20 bg-gradient-primary">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             Ready to Transform Your Student Experience?
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-white/90 mb-8 leading-relaxed">
             Join thousands of students who have already discovered the StudentHub advantage.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="px-8 py-4 text-lg" asChild>
-              <Link to="/auth">Start Your Journey</Link>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Button size="lg" variant="secondary" className="px-8 py-6 text-lg bg-white text-primary hover:bg-white/90 font-semibold" asChild>
+              <Link to="/auth">
+                <Sparkles className="mr-2 h-5 w-5" />
+                Start Your Journey
+              </Link>
             </Button>
-            <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-white text-white hover:bg-white hover:text-blue-600" asChild>
+            <Button size="lg" variant="outline" className="px-8 py-6 text-lg border-white text-white hover:bg-white/10" asChild>
               <Link to="/faqs">Have Questions?</Link>
             </Button>
           </div>
@@ -222,43 +282,43 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-foreground text-background py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Users className="h-5 w-5 text-white" />
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
+                  <Users className="h-6 w-6 text-white" />
                 </div>
-                <span className="text-xl font-bold">StudentHub</span>
+                <span className="text-2xl font-bold">StudentHub</span>
               </div>
-              <p className="text-gray-400 mb-4 max-w-md">
+              <p className="text-muted-foreground mb-6 max-w-md leading-relaxed">
                 Connecting students with the accommodation, marketplace, and community 
                 services they need to succeed in university life.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">Quick Links</h3>
-              <div className="space-y-2">
-                <Link to="/accommodation" className="block text-gray-400 hover:text-white transition-colors">
+              <h3 className="font-semibold mb-6 text-lg">Quick Links</h3>
+              <div className="space-y-3">
+                <Link to="/accommodation" className="block text-muted-foreground hover:text-background transition-colors">
                   Accommodation
                 </Link>
-                <Link to="/marketplace" className="block text-gray-400 hover:text-white transition-colors">
+                <Link to="/marketplace" className="block text-muted-foreground hover:text-background transition-colors">
                   Marketplace
                 </Link>
-                <Link to="/contact" className="block text-gray-400 hover:text-white transition-colors">
+                <Link to="/contact" className="block text-muted-foreground hover:text-background transition-colors">
                   Contact
                 </Link>
-                <Link to="/faqs" className="block text-gray-400 hover:text-white transition-colors">
+                <Link to="/faqs" className="block text-muted-foreground hover:text-background transition-colors">
                   FAQs
                 </Link>
               </div>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <div className="space-y-2 text-gray-400">
+              <h3 className="font-semibold mb-6 text-lg">Support</h3>
+              <div className="space-y-3 text-muted-foreground">
                 <p>support@studenthub.edu</p>
                 <p>+1 (555) 123-4567</p>
                 <p>Monday - Friday</p>
@@ -267,7 +327,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+          <div className="border-t border-muted/20 mt-12 pt-8 text-center text-muted-foreground">
             <p>&copy; 2024 StudentHub. All rights reserved.</p>
           </div>
         </div>
