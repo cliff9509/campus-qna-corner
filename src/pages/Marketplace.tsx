@@ -108,18 +108,18 @@ const Marketplace = () => {
     try {
       const { error } = await supabase
         .from('marketplace_items')
-        .update({ status: 'sold' })
+        .delete()
         .eq('id', itemId)
         .eq('user_id', user?.id);
 
       if (error) throw error;
       
-      toast.success('Item marked as sold');
+      toast.success('Item sold and removed from marketplace');
       fetchUserItems();
       fetchAllItems();
     } catch (error) {
-      toast.error('Failed to mark item as sold');
-      console.error('Error marking item as sold:', error);
+      toast.error('Failed to remove sold item');
+      console.error('Error removing sold item:', error);
     }
   };
 
@@ -294,7 +294,7 @@ const Marketplace = () => {
                 return true;
               })
               .map((item) => (
-              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all duration-200">
+              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer" onClick={() => window.location.href = `/marketplace/item/${item.id}`}>
                 <div className="relative">
                   <img
                     src={item.image_urls?.[0] || `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80`}

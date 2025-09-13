@@ -19,12 +19,15 @@ export type Database = {
           category: string
           condition: string
           created_at: string
+          delivery_notes: string | null
+          delivery_options: string[] | null
           description: string
           id: string
           image_urls: string[] | null
           likes: number
           location: string
           original_price: number | null
+          payment_methods: string[] | null
           price: number
           seller_contact: string
           seller_name: string
@@ -37,12 +40,15 @@ export type Database = {
           category: string
           condition: string
           created_at?: string
+          delivery_notes?: string | null
+          delivery_options?: string[] | null
           description: string
           id?: string
           image_urls?: string[] | null
           likes?: number
           location: string
           original_price?: number | null
+          payment_methods?: string[] | null
           price: number
           seller_contact: string
           seller_name: string
@@ -55,12 +61,15 @@ export type Database = {
           category?: string
           condition?: string
           created_at?: string
+          delivery_notes?: string | null
+          delivery_options?: string[] | null
           description?: string
           id?: string
           image_urls?: string[] | null
           likes?: number
           location?: string
           original_price?: number | null
+          payment_methods?: string[] | null
           price?: number
           seller_contact?: string
           seller_name?: string
