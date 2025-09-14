@@ -121,63 +121,7 @@ export type Database = {
       }
     }
     Views: {
-      marketplace_items_public: {
-        Row: {
-          category: string | null
-          condition: string | null
-          created_at: string | null
-          delivery_options: string[] | null
-          description: string | null
-          id: string | null
-          image_urls: string[] | null
-          likes: number | null
-          location: string | null
-          original_price: number | null
-          payment_methods: string[] | null
-          price: number | null
-          seller_name: string | null
-          status: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string | null
-          condition?: string | null
-          created_at?: string | null
-          delivery_options?: string[] | null
-          description?: string | null
-          id?: string | null
-          image_urls?: string[] | null
-          likes?: number | null
-          location?: string | null
-          original_price?: number | null
-          payment_methods?: string[] | null
-          price?: number | null
-          seller_name?: string | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
-          condition?: string | null
-          created_at?: string | null
-          delivery_options?: string[] | null
-          description?: string | null
-          id?: string | null
-          image_urls?: string[] | null
-          likes?: number | null
-          location?: string | null
-          original_price?: number | null
-          payment_methods?: string[] | null
-          price?: number | null
-          seller_name?: string | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never

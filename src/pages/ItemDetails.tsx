@@ -94,10 +94,20 @@ const ItemDetails = () => {
   };
 
   const handleContactSeller = () => {
-    if (item?.seller_contact.includes('@')) {
+    if (!user) {
+      toast.error('Please sign in to contact the seller');
+      return;
+    }
+    
+    if (!item?.seller_contact) {
+      toast.error('Seller contact information not available');
+      return;
+    }
+    
+    if (item.seller_contact.includes('@')) {
       window.location.href = `mailto:${item.seller_contact}?subject=Interested in ${item.title}`;
     } else {
-      toast.info(`Contact seller at: ${item?.seller_contact}`);
+      toast.info(`Contact seller at: ${item.seller_contact}`);
     }
   };
 
@@ -212,6 +222,17 @@ const ItemDetails = () => {
                   <Clock className="h-4 w-4 text-gray-500" />
                   <span>Posted {getTimeAgo(item.created_at)}</span>
                 </div>
+                {user && item.seller_contact && (
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm">Contact: {item.seller_contact}</span>
+                  </div>
+                )}
+                {!user && (
+                  <div className="text-sm text-gray-500 bg-yellow-50 p-3 rounded-lg">
+                    <p>🔒 Sign in to view seller contact information</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -266,13 +287,18 @@ const ItemDetails = () => {
             {/* Action Buttons */}
             {user?.id !== item.user_id && (
               <div className="flex gap-3">
-                <Button onClick={handleContactSeller} variant="outline" className="flex-1">
+                <Button 
+                  onClick={handleContactSeller} 
+                  variant="outline" 
+                  className="flex-1"
+                  disabled={!user}
+                >
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Contact Seller
+                  {user ? 'Contact Seller' : 'Sign in to Contact'}
                 </Button>
-                <Button className="flex-1">
+                <Button className="flex-1" disabled={!user}>
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  Buy Now
+                  {user ? 'Buy Now' : 'Sign in to Buy'}
                 </Button>
               </div>
             )}
