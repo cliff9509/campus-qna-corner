@@ -85,12 +85,57 @@ const EditItem = () => {
     
     if (!user || !id) return;
     
-    // Basic validation
+    // Enhanced validation matching database constraints
     if (!formData.title || !formData.price || !formData.category || 
         !formData.condition || !formData.description || !formData.seller_name || !formData.seller_contact) {
       toast({
         title: "Missing information",
         description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Title validation (3-100 characters)
+    if (formData.title.trim().length < 3 || formData.title.trim().length > 100) {
+      toast({
+        title: "Invalid title",
+        description: "Title must be between 3 and 100 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Description validation (10-2000 characters)
+    if (formData.description.trim().length < 10 || formData.description.trim().length > 2000) {
+      toast({
+        title: "Invalid description", 
+        description: "Description must be between 10 and 2000 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Price validation (must be positive)
+    const price = parseFloat(formData.price);
+    if (price <= 0) {
+      toast({
+        title: "Invalid price",
+        description: "Price must be a positive number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Contact validation (email or phone format)
+    const contactTrimmed = formData.seller_contact.trim();
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{7,15}$/;
+    
+    if (!emailRegex.test(contactTrimmed) && !phoneRegex.test(contactTrimmed)) {
+      toast({
+        title: "Invalid contact information",
+        description: "Please provide a valid email address or phone number",
         variant: "destructive",
       });
       return;
