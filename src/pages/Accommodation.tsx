@@ -294,13 +294,21 @@ const Accommodation = () => {
                       View Details
                     </Button>
                   </Link>
-                  <Button 
-                    className="flex-1" 
-                    disabled={!hostel.available}
-                    variant={hostel.available ? "default" : "secondary"}
-                  >
-                    {hostel.available ? "Book Now" : "Waitlist"}
-                  </Button>
+                  {hostel.available ? (
+                    <Link to={`/accommodation/book/${hostel.id}`} className="flex-1">
+                      <Button className="w-full">
+                        Book Now
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button 
+                      className="flex-1" 
+                      disabled={true}
+                      variant="secondary"
+                    >
+                      Waitlist
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
