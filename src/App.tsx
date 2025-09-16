@@ -11,6 +11,7 @@ import FAQs from "./pages/FAQs";
 import Accommodation from "./pages/Accommodation";
 import HostelDetails from "./pages/HostelDetails";
 import BookAccommodation from "./pages/BookAccommodation";
+import LandlordDashboard from "./pages/LandlordDashboard";
 import Marketplace from "./pages/Marketplace";
 import PostItem from "./pages/PostItem";
 import EditItem from "./pages/EditItem";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/accommodation" element={<Accommodation />} />
             <Route path="/accommodation/:id" element={<HostelDetails />} />
             <Route path="/accommodation/book/:id" element={<BookAccommodation />} />
+            <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/marketplace/post" element={<PostItem />} />
             <Route path="/marketplace/edit/:id" element={<EditItem />} />

@@ -14,6 +14,133 @@ export type Database = {
   }
   public: {
     Tables: {
+      accommodation_chats: {
+        Row: {
+          accommodation_id: string
+          created_at: string
+          id: string
+          landlord_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          accommodation_id: string
+          created_at?: string
+          id?: string
+          landlord_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          accommodation_id?: string
+          created_at?: string
+          id?: string
+          landlord_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accommodation_chats_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accommodations: {
+        Row: {
+          amenities: string[] | null
+          available: boolean | null
+          capacity: number
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          landlord_id: string
+          location: string
+          name: string
+          payment_details: Json | null
+          price: number
+          rating: number | null
+          room_type: string
+          updated_at: string
+        }
+        Insert: {
+          amenities?: string[] | null
+          available?: boolean | null
+          capacity: number
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          landlord_id: string
+          location: string
+          name: string
+          payment_details?: Json | null
+          price: number
+          rating?: number | null
+          room_type: string
+          updated_at?: string
+        }
+        Update: {
+          amenities?: string[] | null
+          available?: boolean | null
+          capacity?: number
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          landlord_id?: string
+          location?: string
+          name?: string
+          payment_details?: Json | null
+          price?: number
+          rating?: number | null
+          room_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          chat_id: string
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          chat_id: string
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+        }
+        Update: {
+          chat_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "accommodation_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_items: {
         Row: {
           category: string
@@ -87,6 +214,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          role: string | null
           student_id: string | null
           university: string | null
           updated_at: string
@@ -99,6 +227,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          role?: string | null
           student_id?: string | null
           university?: string | null
           updated_at?: string
@@ -111,6 +240,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          role?: string | null
           student_id?: string | null
           university?: string | null
           updated_at?: string
