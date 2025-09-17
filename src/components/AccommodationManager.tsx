@@ -22,7 +22,7 @@ interface Accommodation {
   capacity: number;
   amenities: string[];
   rating: number;
-  image_url?: string;
+  image_urls: string[];
   available: boolean;
   description: string;
   contact_phone?: string;
@@ -50,9 +50,11 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
     contact_phone: '',
     contact_email: '',
     available: true,
-    image_url: '',
+    image_urls: [] as string[],
     payment_details: {}
   });
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const amenitiesList = ['WiFi', 'Parking', 'Kitchen', 'Laundry', 'Study Room', 'Gym', 'Security', 'Common Room'];
   const roomTypes = ['Single', 'Double', 'Shared', 'Studio'];
@@ -70,10 +72,11 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
       contact_phone: '',
       contact_email: '',
       available: true,
-      image_url: '',
+      image_urls: [],
       payment_details: {}
     });
     setEditingAccommodation(null);
+    setUploadedFiles([]);
   };
 
   const handleEdit = (accommodation: Accommodation) => {
@@ -89,10 +92,39 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
       contact_phone: accommodation.contact_phone || '',
       contact_email: accommodation.contact_email || '',
       available: accommodation.available,
-      image_url: accommodation.image_url || '',
+      image_urls: accommodation.image_urls || [],
       payment_details: accommodation.payment_details || {}
     });
+    setUploadedFiles([]);
     setIsDialogOpen(true);
+  };
+
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    const uploadPromises = files.map(async (file) => {
+      const fileName = `${user?.id}/${Date.now()}-${file.name}`;
+      const { data, error } = await supabase.storage
+        .from('accommodation-images')
+        .upload(fileName, file);
+
+      if (error) throw error;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('accommodation-images')
+        .getPublicUrl(fileName);
+      
+      return publicUrl;
+    });
+
+    return Promise.all(uploadPromises);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length + formData.image_urls.length > 5) {
+      toast.error('Maximum 5 images allowed');
+      return;
+    }
+    setUploadedFiles(files);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,6 +136,16 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
     }
 
     try {
+      setUploading(true);
+      
+      let imageUrls = [...formData.image_urls];
+      
+      // Upload new images if any
+      if (uploadedFiles.length > 0) {
+        const newImageUrls = await uploadImages(uploadedFiles);
+        imageUrls = [...imageUrls, ...newImageUrls];
+      }
+
       const data = {
         name: formData.name,
         location: formData.location,
@@ -115,7 +157,7 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
         contact_phone: formData.contact_phone,
         contact_email: formData.contact_email,
         available: formData.available,
-        image_url: formData.image_url,
+        image_urls: imageUrls,
         payment_details: formData.payment_details,
         landlord_id: user.id
       };
@@ -143,6 +185,8 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
     } catch (error) {
       console.error('Error saving accommodation:', error);
       toast.error('Failed to save property');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -302,13 +346,41 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
               </div>
 
               <div>
-                <Label htmlFor="image_url">Image URL</Label>
+                <Label htmlFor="images">Property Images (Max 5)</Label>
                 <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
+                  id="images"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileChange}
                 />
+                <p className="text-sm text-gray-500 mt-1">
+                  Select up to 5 images. Current: {formData.image_urls.length + uploadedFiles.length}
+                </p>
+                {formData.image_urls.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium">Current Images:</p>
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                      {formData.image_urls.map((url, index) => (
+                        <div key={index} className="relative">
+                          <img src={url} alt={`Property ${index + 1}`} className="w-full h-16 object-cover rounded" />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute -top-1 -right-1 h-6 w-6 p-0"
+                            onClick={() => {
+                              const newUrls = formData.image_urls.filter((_, i) => i !== index);
+                              setFormData(prev => ({ ...prev, image_urls: newUrls }));
+                            }}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -342,8 +414,8 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {editingAccommodation ? 'Update Property' : 'Add Property'}
+                <Button type="submit" disabled={uploading}>
+                  {uploading ? 'Saving...' : editingAccommodation ? 'Update Property' : 'Add Property'}
                 </Button>
               </DialogFooter>
             </form>
@@ -354,12 +426,19 @@ const AccommodationManager = ({ accommodations, onUpdate }: AccommodationManager
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {accommodations.map((accommodation) => (
           <Card key={accommodation.id} className="overflow-hidden">
-            {accommodation.image_url && (
-              <img
-                src={accommodation.image_url}
-                alt={accommodation.name}
-                className="w-full h-48 object-cover"
-              />
+            {accommodation.image_urls && accommodation.image_urls.length > 0 && (
+              <div className="relative">
+                <img
+                  src={accommodation.image_urls[0]}
+                  alt={accommodation.name}
+                  className="w-full h-48 object-cover"
+                />
+                {accommodation.image_urls.length > 1 && (
+                  <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
+                    +{accommodation.image_urls.length - 1} more
+                  </div>
+                )}
+              </div>
             )}
             
             <CardHeader>
