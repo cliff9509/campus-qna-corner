@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { 
@@ -20,138 +19,37 @@ import {
   CreditCard, 
   DollarSign,
   Send,
-  User
+  User,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-interface Hostel {
-  id: number;
+interface Accommodation {
+  id: string;
   name: string;
   location: string;
   price: number;
-  roomType: string;
+  room_type: string;
   capacity: number;
   amenities: string[];
   rating: number;
-  image: string;
+  image_urls: string[];
   available: boolean;
   description: string;
-  owner: {
-    name: string;
-    email: string;
-    phone: string;
-    avatar: string;
-  };
-  paymentDetails: {
-    securityDeposit: number;
-    paymentMethods: string[];
-    bankDetails?: {
-      accountName: string;
-      accountNumber: string;
-      bankName: string;
-      routingNumber: string;
-    };
-  };
+  contact_phone?: string;
+  contact_email?: string;
+  payment_details: any;
 }
-
-// Extended hostel data with owner and payment info
-const hostels: Hostel[] = [
-  {
-    id: 1,
-    name: "University Gardens",
-    location: "Campus North",
-    price: 450,
-    roomType: "Single",
-    capacity: 1,
-    amenities: ["WiFi", "Parking", "Laundry", "Study Room"],
-    rating: 4.5,
-    image: "photo-1721322800607-8c38375eef04",
-    available: true,
-    description: "Modern single rooms with excellent study facilities",
-    owner: {
-      name: "Sarah Johnson",
-      email: "sarah.johnson@email.com",
-      phone: "+1 (555) 123-4567",
-      avatar: "photo-1494790108755-2616b612b786"
-    },
-    paymentDetails: {
-      securityDeposit: 450,
-      paymentMethods: ["Bank Transfer", "Credit Card", "PayPal"],
-      bankDetails: {
-        accountName: "Sarah Johnson",
-        accountNumber: "1234567890",
-        bankName: "City Bank",
-        routingNumber: "123456789"
-      }
-    }
-  },
-  {
-    id: 2,
-    name: "Student Village",
-    location: "Campus East",
-    price: 350,
-    roomType: "Shared",
-    capacity: 2,
-    amenities: ["WiFi", "Kitchen", "Common Room"],
-    rating: 4.2,
-    image: "photo-1487958449943-2429e8be8625",
-    available: true,
-    description: "Affordable shared accommodation with great community feel",
-    owner: {
-      name: "Mike Chen",
-      email: "mike.chen@email.com",
-      phone: "+1 (555) 234-5678",
-      avatar: "photo-1472099645785-5658abf4ff4e"
-    },
-    paymentDetails: {
-      securityDeposit: 350,
-      paymentMethods: ["Bank Transfer", "Cash"],
-      bankDetails: {
-        accountName: "Mike Chen",
-        accountNumber: "2345678901",
-        bankName: "University Credit Union",
-        routingNumber: "234567890"
-      }
-    }
-  },
-  {
-    id: 3,
-    name: "Oak Hall Residence",
-    location: "City Center",
-    price: 550,
-    roomType: "Studio",
-    capacity: 1,
-    amenities: ["WiFi", "Parking", "Kitchen", "Gym", "Security"],
-    rating: 4.8,
-    image: "photo-1518005020951-eccb494ad742",
-    available: true,
-    description: "Premium studio apartments with full amenities",
-    owner: {
-      name: "Emily Rodriguez",
-      email: "emily.rodriguez@email.com",
-      phone: "+1 (555) 345-6789",
-      avatar: "photo-1438761681033-6461ffad8d80"
-    },
-    paymentDetails: {
-      securityDeposit: 1100,
-      paymentMethods: ["Bank Transfer", "Credit Card", "Check"],
-      bankDetails: {
-        accountName: "Emily Rodriguez",
-        accountNumber: "3456789012",
-        bankName: "Metro Bank",
-        routingNumber: "345678901"
-      }
-    }
-  }
-];
 
 interface ChatMessage {
   id: string;
-  sender: 'user' | 'owner';
+  sender_id: string;
   message: string;
-  timestamp: Date;
+  created_at: string;
 }
 
 const BookAccommodation = () => {
@@ -160,31 +58,124 @@ const BookAccommodation = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const [hostel, setHostel] = useState<Hostel | null>(null);
+  const [accommodation, setAccommodation] = useState<Accommodation | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
-    const fetchHostel = () => {
-      const foundHostel = hostels.find(h => h.id === parseInt(id || ""));
-      if (foundHostel) {
-        setHostel(foundHostel);
-        // Simulate initial message from owner
-        setChatMessages([
-          {
-            id: "1",
-            sender: "owner",
-            message: `Hello! I'm ${foundHostel.owner.name}, the owner of ${foundHostel.name}. I'm excited to help you with your accommodation needs. Feel free to ask any questions!`,
-            timestamp: new Date(Date.now() - 5 * 60 * 1000) // 5 minutes ago
-          }
-        ]);
-      }
-      setLoading(false);
-    };
-
-    fetchHostel();
+    if (id) {
+      fetchAccommodation();
+    }
   }, [id]);
+
+  useEffect(() => {
+    if (chatId) {
+      fetchMessages();
+      
+      // Set up real-time subscription
+      const channel = supabase
+        .channel(`chat_${chatId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'chat_messages',
+            filter: `chat_id=eq.${chatId}`
+          },
+          (payload) => {
+            setChatMessages(prev => [...prev, payload.new as ChatMessage]);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [chatId]);
+
+  const fetchAccommodation = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('accommodations')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      setAccommodation(data);
+
+      // Check if chat exists or create one
+      if (user && data) {
+        await getOrCreateChat(data.landlord_id);
+      }
+    } catch (error) {
+      console.error('Error fetching accommodation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load accommodation details",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getOrCreateChat = async (landlordId: string) => {
+    try {
+      // Check if chat already exists
+      const { data: existingChat, error: chatError } = await supabase
+        .from('accommodation_chats')
+        .select('id')
+        .eq('accommodation_id', id)
+        .eq('tenant_id', user?.id)
+        .maybeSingle();
+
+      if (chatError && chatError.code !== 'PGRST116') throw chatError;
+
+      if (existingChat) {
+        setChatId(existingChat.id);
+      } else {
+        // Create new chat
+        const { data: newChat, error: createError } = await supabase
+          .from('accommodation_chats')
+          .insert([{
+            accommodation_id: id,
+            tenant_id: user?.id,
+            landlord_id: landlordId
+          }])
+          .select('id')
+          .single();
+
+        if (createError) throw createError;
+        setChatId(newChat.id);
+      }
+    } catch (error) {
+      console.error('Error with chat:', error);
+    }
+  };
+
+  const fetchMessages = async () => {
+    if (!chatId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('chat_id', chatId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setChatMessages(data || []);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
 
   const getAmenityIcon = (amenity: string) => {
     switch (amenity.toLowerCase()) {
@@ -205,37 +196,28 @@ const BookAccommodation = () => {
       <BedDouble className="h-4 w-4" />;
   };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim() || !user) return;
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !user || !chatId) return;
 
-    const message: ChatMessage = {
-      id: Date.now().toString(),
-      sender: 'user',
-      message: newMessage.trim(),
-      timestamp: new Date()
-    };
+    try {
+      const { error } = await supabase
+        .from('chat_messages')
+        .insert([{
+          chat_id: chatId,
+          sender_id: user.id,
+          message: newMessage.trim()
+        }]);
 
-    setChatMessages(prev => [...prev, message]);
-    setNewMessage("");
-
-    // Simulate owner response
-    setTimeout(() => {
-      const responses = [
-        "Thanks for your message! I'll get back to you shortly.",
-        "That's a great question. Let me check and respond soon.",
-        "I'm here to help! I'll respond as soon as possible.",
-        "Thank you for your interest in the property!"
-      ];
-      
-      const ownerResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: 'owner',
-        message: responses[Math.floor(Math.random() * responses.length)],
-        timestamp: new Date()
-      };
-      
-      setChatMessages(prev => [...prev, ownerResponse]);
-    }, 2000);
+      if (error) throw error;
+      setNewMessage("");
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleBooking = () => {
@@ -255,6 +237,18 @@ const BookAccommodation = () => {
     });
   };
 
+  const nextImage = () => {
+    if (accommodation && accommodation.image_urls.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % accommodation.image_urls.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (accommodation && accommodation.image_urls.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + accommodation.image_urls.length) % accommodation.image_urls.length);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -269,7 +263,7 @@ const BookAccommodation = () => {
     );
   }
 
-  if (!hostel) {
+  if (!accommodation) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -310,42 +304,71 @@ const BookAccommodation = () => {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-2xl">{hostel.name}</CardTitle>
+                    <CardTitle className="text-2xl">{accommodation.name}</CardTitle>
                     <CardDescription className="flex items-center gap-1 mt-2">
                       <MapPin className="h-4 w-4" />
-                      {hostel.location}
+                      {accommodation.location}
                     </CardDescription>
                   </div>
                   <Badge variant="secondary" className="text-sm">
-                    ⭐ {hostel.rating}
+                    ⭐ {accommodation.rating}
                   </Badge>
                 </div>
               </CardHeader>
               
               <CardContent>
-                <div className="relative mb-6">
-                  <img
-                    src={`https://images.unsplash.com/${hostel.image}?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80`}
-                    alt={hostel.name}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                </div>
+                {accommodation.image_urls && accommodation.image_urls.length > 0 ? (
+                  <div className="relative mb-6">
+                    <img
+                      src={accommodation.image_urls[currentImageIndex]}
+                      alt={accommodation.name}
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                    {accommodation.image_urls.length > 1 && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white"
+                          onClick={prevImage}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white"
+                          onClick={nextImage}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                        <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
+                          {currentImageIndex + 1} / {accommodation.image_urls.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center mb-6">
+                    <span className="text-gray-400">No images</span>
+                  </div>
+                )}
 
-                <p className="text-muted-foreground mb-4">{hostel.description}</p>
+                <p className="text-muted-foreground mb-4">{accommodation.description}</p>
                 
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-1">
-                    {getRoomIcon(hostel.roomType)}
-                    <span className="text-sm">{hostel.roomType}</span>
+                    {getRoomIcon(accommodation.room_type)}
+                    <span className="text-sm">{accommodation.room_type}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    <span className="text-sm">{hostel.capacity} person{hostel.capacity > 1 ? 's' : ''}</span>
+                    <span className="text-sm">{accommodation.capacity} person{accommodation.capacity > 1 ? 's' : ''}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  {hostel.amenities.map((amenity, index) => (
+                  {accommodation.amenities.map((amenity, index) => (
                     <Badge key={index} variant="outline" className="text-xs flex items-center gap-1">
                       {getAmenityIcon(amenity)}
                       {amenity}
@@ -370,14 +393,14 @@ const BookAccommodation = () => {
                     <label className="text-sm font-medium text-muted-foreground">Monthly Rent</label>
                     <div className="flex items-center gap-1 text-2xl font-bold text-primary">
                       <DollarSign className="h-5 w-5" />
-                      {hostel.price}
+                      {accommodation.price}
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Security Deposit</label>
                     <div className="flex items-center gap-1 text-2xl font-bold text-muted-foreground">
                       <DollarSign className="h-5 w-5" />
-                      {hostel.paymentDetails.securityDeposit}
+                      {accommodation.payment_details?.securityDeposit || accommodation.price}
                     </div>
                   </div>
                 </div>
@@ -386,31 +409,23 @@ const BookAccommodation = () => {
 
                 <div>
                   <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                    Accepted Payment Methods
+                    Contact Information
                   </label>
-                  <div className="flex flex-wrap gap-2">
-                    {hostel.paymentDetails.paymentMethods.map((method, index) => (
-                      <Badge key={index} variant="secondary">{method}</Badge>
-                    ))}
+                  <div className="space-y-2 text-sm">
+                    {accommodation.contact_phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        {accommodation.contact_phone}
+                      </div>
+                    )}
+                    {accommodation.contact_email && (
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        {accommodation.contact_email}
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {hostel.paymentDetails.bankDetails && (
-                  <>
-                    <Separator />
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                        Bank Transfer Details
-                      </label>
-                      <div className="space-y-2 text-sm">
-                        <div><strong>Account Name:</strong> {hostel.paymentDetails.bankDetails.accountName}</div>
-                        <div><strong>Account Number:</strong> {hostel.paymentDetails.bankDetails.accountNumber}</div>
-                        <div><strong>Bank Name:</strong> {hostel.paymentDetails.bankDetails.bankName}</div>
-                        <div><strong>Routing Number:</strong> {hostel.paymentDetails.bankDetails.routingNumber}</div>
-                      </div>
-                    </div>
-                  </>
-                )}
 
                 <Button onClick={handleBooking} className="w-full mt-6">
                   <CreditCard className="h-4 w-4 mr-2" />
@@ -422,34 +437,26 @@ const BookAccommodation = () => {
 
           {/* Right Column - Owner Contact & Chat */}
           <div className="space-y-6">
-            {/* Owner Contact */}
+            {/* Contact Information */}
             <Card>
               <CardHeader>
-                <CardTitle>Property Owner</CardTitle>
+                <CardTitle>Contact Property Owner</CardTitle>
               </CardHeader>
               
               <CardContent>
-                <div className="flex items-center gap-4 mb-4">
-                  <img
-                    src={`https://images.unsplash.com/${hostel.owner.avatar}?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80`}
-                    alt={hostel.owner.name}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="font-semibold text-lg">{hostel.owner.name}</h3>
-                    <p className="text-sm text-muted-foreground">Property Owner</p>
-                  </div>
-                </div>
-
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{hostel.owner.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{hostel.owner.phone}</span>
-                  </div>
+                  {accommodation.contact_email && (
+                    <div className="flex items-center gap-3">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{accommodation.contact_email}</span>
+                    </div>
+                  )}
+                  {accommodation.contact_phone && (
+                    <div className="flex items-center gap-3">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{accommodation.contact_phone}</span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -464,66 +471,66 @@ const BookAccommodation = () => {
               </CardHeader>
               
               <CardContent>
-                {/* Chat Messages */}
-                <div className="h-80 overflow-y-auto mb-4 space-y-3 border rounded-lg p-4 bg-muted/10">
-                  {chatMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[80%] p-3 rounded-lg ${
-                          message.sender === 'user'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-secondary text-secondary-foreground'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <User className="h-3 w-3" />
-                          <span className="text-xs font-medium">
-                            {message.sender === 'user' ? 'You' : hostel.owner.name}
-                          </span>
+                {!user ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">Please sign in to chat with the property owner</p>
+                    <Button onClick={() => navigate("/auth")}>Sign In</Button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Chat Messages */}
+                    <div className="h-80 overflow-y-auto mb-4 space-y-3 border rounded-lg p-4 bg-muted/10">
+                      {chatMessages.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8">
+                          <p>No messages yet. Start the conversation!</p>
                         </div>
-                        <p className="text-sm">{message.message}</p>
-                        <p className="text-xs opacity-70 mt-1">
-                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
+                      ) : (
+                        chatMessages.map((message) => (
+                          <div
+                            key={message.id}
+                            className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div
+                              className={`max-w-[80%] p-3 rounded-lg ${
+                                message.sender_id === user.id
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-secondary text-secondary-foreground'
+                              }`}
+                            >
+                              <p className="text-sm">{message.message}</p>
+                              <p className="text-xs opacity-70 mt-1">
+                                {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
-                  ))}
-                </div>
 
-                {/* Message Input */}
-                <div className="flex gap-2">
-                  <Textarea
-                    placeholder={user ? "Type your message..." : "Please sign in to chat"}
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    disabled={!user}
-                    className="flex-1 min-h-[60px] resize-none"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                  />
-                  <Button 
-                    onClick={handleSendMessage}
-                    disabled={!user || !newMessage.trim()}
-                    size="sm"
-                    className="self-end"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {!user && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    <Button variant="link" size="sm" onClick={() => navigate("/auth")} className="p-0 h-auto">
-                      Sign in
-                    </Button> to chat with the property owner
-                  </p>
+                    {/* Message Input */}
+                    <div className="flex gap-2">
+                      <Textarea
+                        placeholder="Type your message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        rows={2}
+                        className="resize-none"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
+                      />
+                      <Button 
+                        onClick={handleSendMessage}
+                        disabled={!newMessage.trim()}
+                        size="icon"
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
