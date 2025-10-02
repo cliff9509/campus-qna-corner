@@ -156,14 +156,6 @@ Pata-Space works seamlessly across all devices:
 - **Security**: End-to-end encryption for sensitive data
 - **Scalability**: Built to handle thousands of concurrent users
 
-## 📈 Impact & Metrics
-
-- 🎓 **50,000+** Students registered
-- 🏠 **10,000+** Accommodation listings
-- 🛒 **25,000+** Marketplace transactions
-- ⭐ **4.8/5** Average user rating
-- 💰 **$500+** Average student savings per semester
-
 ## 🔐 Security & Privacy
 
 - ✅ Student email verification required
@@ -258,8 +250,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact & Support
 
-- 📧 Email: support@pata-space.com
-- 🐦 Twitter: [@PataSpace](https://twitter.com/pataspace)
+- 📧 Email: kipronowycliff992@gmail.com
 - 💼 LinkedIn: [Pata-Space](https://linkedin.com/company/pataspace)
 - 🌐 Website: [pata-space.com](https://pata-space.com)
 
