@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRoles } from "@/hooks/useUserRoles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,11 +22,11 @@ interface Profile {
   avatar_url?: string;
   bio?: string;
   year_of_study?: number;
-  role: string;
 }
 
 const LandlordProfile = () => {
   const { user } = useAuth();
+  const { roles, loading: rolesLoading } = useUserRoles();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -35,8 +36,7 @@ const LandlordProfile = () => {
     student_id: '',
     avatar_url: '',
     bio: '',
-    year_of_study: '',
-    role: 'landlord'
+    year_of_study: ''
   });
 
   useEffect(() => {
@@ -65,8 +65,7 @@ const LandlordProfile = () => {
           student_id: data.student_id || '',
           avatar_url: data.avatar_url || '',
           bio: data.bio || '',
-          year_of_study: data.year_of_study?.toString() || '',
-          role: data.role || 'landlord'
+          year_of_study: data.year_of_study?.toString() || ''
         });
       }
     } catch (error) {
@@ -92,8 +91,7 @@ const LandlordProfile = () => {
         student_id: formData.student_id,
         avatar_url: formData.avatar_url,
         bio: formData.bio,
-        year_of_study: formData.year_of_study ? parseInt(formData.year_of_study) : null,
-        role: formData.role
+        year_of_study: formData.year_of_study ? parseInt(formData.year_of_study) : null
       };
 
       if (profile) {
@@ -177,31 +175,15 @@ const LandlordProfile = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="display_name">Display Name *</Label>
-                <Input
-                  id="display_name"
-                  value={formData.display_name}
-                  onChange={(e) => handleChange('display_name', e.target.value)}
-                  placeholder="Your full name"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => handleChange('role', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="student">Student</SelectItem>
-                    <SelectItem value="landlord">Landlord</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label htmlFor="display_name">Display Name *</Label>
+              <Input
+                id="display_name"
+                value={formData.display_name}
+                onChange={(e) => handleChange('display_name', e.target.value)}
+                placeholder="Your full name"
+                required
+              />
             </div>
 
             <div>
@@ -293,11 +275,21 @@ const LandlordProfile = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-gray-500" />
-                <span className="text-sm font-medium">Role:</span>
+                <span className="text-sm font-medium">Roles:</span>
               </div>
-              <Badge variant={formData.role === 'landlord' ? 'default' : 'secondary'}>
-                {formData.role}
-              </Badge>
+              <div className="flex gap-1">
+                {rolesLoading ? (
+                  <Badge variant="secondary">Loading...</Badge>
+                ) : roles.length > 0 ? (
+                  roles.map(role => (
+                    <Badge key={role} variant={role === 'landlord' ? 'default' : 'secondary'}>
+                      {role}
+                    </Badge>
+                  ))
+                ) : (
+                  <Badge variant="secondary">student</Badge>
+                )}
+              </div>
             </div>
             
             <div className="flex items-center justify-between">
