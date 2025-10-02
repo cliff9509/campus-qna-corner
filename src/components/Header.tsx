@@ -45,7 +45,7 @@ const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
               <GraduationCap className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">StudentHub</span>
+              <span className="text-xl font-bold text-gray-900">Pata-Space</span>
             </Link>
           </div>
 

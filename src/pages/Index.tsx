@@ -88,7 +88,7 @@ const Index = () => {
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
               Your Complete
-              <span className="bg-gradient-primary bg-clip-text text-transparent"> Student Hub</span>
+              <span className="bg-gradient-primary bg-clip-text text-transparent"> Pata-Space</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
@@ -205,7 +205,7 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
-                Why Students Choose StudentHub
+                Why Students Choose Pata-Space
               </h2>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
                 We understand the unique challenges students face. That's why we've built 
@@ -265,7 +265,7 @@ const Index = () => {
             Ready to Transform Your Student Experience?
           </h2>
           <p className="text-xl text-white/90 mb-8 leading-relaxed">
-            Join thousands of students who have already discovered the StudentHub advantage.
+            Join thousands of students who have already discovered the Pata-Space advantage.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Button size="lg" variant="secondary" className="px-8 py-6 text-lg bg-white text-primary hover:bg-white/90 font-semibold" asChild>
@@ -290,7 +290,7 @@ const Index = () => {
                 <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
                   <Users className="h-6 w-6 text-white" />
                 </div>
-                <span className="text-2xl font-bold">StudentHub</span>
+                <span className="text-2xl font-bold">Pata-Space</span>
               </div>
               <p className="text-muted-foreground mb-6 max-w-md leading-relaxed">
                 Connecting students with the accommodation, marketplace, and community 
@@ -319,7 +319,7 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-6 text-lg">Support</h3>
               <div className="space-y-3 text-muted-foreground">
-                <p>support@studenthub.edu</p>
+                <p>support@pata-space.com</p>
                 <p>+1 (555) 123-4567</p>
                 <p>Monday - Friday</p>
                 <p>9:00 AM - 6:00 PM</p>
@@ -328,7 +328,7 @@ const Index = () => {
           </div>
 
           <div className="border-t border-muted/20 mt-12 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 StudentHub. All rights reserved.</p>
+            <p>&copy; 2024 Pata-Space. All rights reserved.</p>
           </div>
         </div>
       </footer>
