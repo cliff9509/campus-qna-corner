@@ -88,7 +88,7 @@ const Index = () => {
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
               Your Complete
-              <span className="bg-gradient-primary bg-clip-text text-transparent"> Pata-Space</span>
+              <span className="bg-gradient-primary bg-clip-text text-transparent"> Student-Hub</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
