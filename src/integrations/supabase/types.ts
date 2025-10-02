@@ -47,6 +47,13 @@ export type Database = {
             referencedRelation: "accommodations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "accommodation_chats_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       accommodations: {
@@ -214,7 +221,6 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
-          role: string | null
           student_id: string | null
           university: string | null
           updated_at: string
@@ -227,7 +233,6 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
-          role?: string | null
           student_id?: string | null
           university?: string | null
           updated_at?: string
@@ -240,7 +245,6 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
-          role?: string | null
           student_id?: string | null
           university?: string | null
           updated_at?: string
@@ -249,11 +253,155 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      accommodations_public: {
+        Row: {
+          amenities: string[] | null
+          available: boolean | null
+          capacity: number | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          image_urls: string[] | null
+          location: string | null
+          name: string | null
+          price: number | null
+          rating: number | null
+          room_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amenities?: string[] | null
+          available?: boolean | null
+          capacity?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          image_urls?: string[] | null
+          location?: string | null
+          name?: string | null
+          price?: number | null
+          rating?: number | null
+          room_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amenities?: string[] | null
+          available?: boolean | null
+          capacity?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          image_urls?: string[] | null
+          location?: string | null
+          name?: string | null
+          price?: number | null
+          rating?: number | null
+          room_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      marketplace_items_public: {
+        Row: {
+          category: string | null
+          condition: string | null
+          created_at: string | null
+          delivery_notes: string | null
+          delivery_options: string[] | null
+          description: string | null
+          id: string | null
+          image_urls: string[] | null
+          likes: number | null
+          location: string | null
+          original_price: number | null
+          payment_methods: string[] | null
+          price: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          condition?: string | null
+          created_at?: string | null
+          delivery_notes?: string | null
+          delivery_options?: string[] | null
+          description?: string | null
+          id?: string | null
+          image_urls?: string[] | null
+          likes?: number | null
+          location?: string | null
+          original_price?: number | null
+          payment_methods?: string[] | null
+          price?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          condition?: string | null
+          created_at?: string | null
+          delivery_notes?: string | null
+          delivery_options?: string[] | null
+          description?: string | null
+          id?: string | null
+          image_urls?: string[] | null
+          likes?: number | null
+          location?: string | null
+          original_price?: number | null
+          payment_methods?: string[] | null
+          price?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      get_accommodation_contact: {
+        Args: { accommodation_id: string }
+        Returns: {
+          contact_email: string
+          contact_phone: string
+          landlord_id: string
+        }[]
+      }
+      get_marketplace_contact: {
+        Args: { item_id: string }
+        Returns: {
+          seller_contact: string
+          seller_name: string
+          user_id: string
+        }[]
+      }
       get_public_profile: {
         Args: { profile_user_id: string }
         Returns: {
@@ -262,9 +410,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "landlord" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -391,6 +546,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "landlord", "student"],
+    },
   },
 } as const
