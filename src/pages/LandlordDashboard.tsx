@@ -45,17 +45,19 @@ const LandlordDashboard = () => {
       // Fetch chats
       const { data: chatsData, error: chatsError } = await supabase
         .from('accommodation_chats')
-        .select(`
-          *,
-          accommodations(name),
-          profiles!accommodation_chats_tenant_id_fkey(display_name)
-        `)
+        .select('*')
         .eq('landlord_id', user?.id);
 
       if (chatsError) throw chatsError;
 
+      const accNameMap = new Map((accommodationsData || []).map((a: any) => [a.id, a.name]));
+      const enrichedChats = (chatsData || []).map((c: any) => ({
+        ...c,
+        accommodations: { name: accNameMap.get(c.accommodation_id) || 'Accommodation' },
+        profiles: { display_name: '' }
+      }));
       setAccommodations(accommodationsData || []);
-      setChats(chatsData || []);
+      setChats(enrichedChats);
 
       // Calculate stats
       const occupiedCount = accommodationsData?.filter(acc => !acc.available).length || 0;
