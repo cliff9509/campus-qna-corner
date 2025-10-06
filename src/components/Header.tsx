@@ -4,6 +4,7 @@ import { GraduationCap, Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "./ThemeToggle";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,13 +40,13 @@ const Header = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-background shadow-sm border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <GraduationCap className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">Pata-Space</span>
+              <GraduationCap className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold text-foreground">Pata-Space</span>
             </Link>
           </div>
 
@@ -57,8 +58,8 @@ const Header = () => {
                 to={item.href}
                 className={`px-3 py-2 text-sm font-medium transition-colors ${
                   isActive(item.href)
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-primary"
                 }`}
               >
                 {item.name}
@@ -67,10 +68,11 @@ const Header = () => {
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
             {!loading && (
               user ? (
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <User className="h-4 w-4" />
                     <span>Welcome back!</span>
                   </div>
@@ -114,8 +116,8 @@ const Header = () => {
                   to={item.href}
                   className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
                     isActive(item.href)
-                      ? "text-blue-600 bg-blue-50"
-                      : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                      ? "text-primary bg-muted"
+                      : "text-muted-foreground hover:text-primary hover:bg-muted"
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -123,10 +125,14 @@ const Header = () => {
                 </Link>
               ))}
               <div className="px-3 py-2 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Theme</span>
+                  <ThemeToggle />
+                </div>
                 {!loading && (
                   user ? (
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 px-2 py-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 px-2 py-1 text-sm text-muted-foreground">
                         <User className="h-4 w-4" />
                         <span>Welcome back!</span>
                       </div>
