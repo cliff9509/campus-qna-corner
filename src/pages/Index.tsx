@@ -83,7 +83,7 @@ const Index = () => {
         <div className="absolute inset-0">
           <img src={heroBg} alt="" className="w-full h-full object-cover" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-background/85 via-background/75 to-primary/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/85 to-primary/20 dark:from-background/95 dark:via-background/90 dark:to-primary/30"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center animate-fade-in">
             <Badge className="mb-6 px-6 py-2 bg-primary/10 text-primary border-primary/20 animate-pulse-glow" variant="outline">
@@ -135,10 +135,10 @@ const Index = () => {
 
       {/* Features Section */}
       <section className="relative py-20 bg-card overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-10 dark:opacity-5">
           <img src={patternBg} alt="" className="w-full h-full object-cover" />
         </div>
-        <div className="absolute inset-0 bg-background/80"></div>
+        <div className="absolute inset-0 bg-background/80 dark:bg-background/90"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
@@ -272,7 +272,7 @@ const Index = () => {
         <div className="absolute inset-0">
           <img src={ctaBg} alt="" className="w-full h-full object-cover" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/80 to-accent/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/80 to-accent/60 dark:from-primary/90 dark:via-primary/85 dark:to-accent/70"></div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             Ready to Transform Your Student Experience?

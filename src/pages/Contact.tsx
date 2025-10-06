@@ -44,14 +44,14 @@ const Contact = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <h1 className="text-4xl font-bold text-foreground mb-4">Contact Us</h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             We're here to help you with accommodation, marketplace, and all your student needs. 
             Reach out to us through any of the channels below.
           </p>
@@ -65,8 +65,8 @@ const Contact = () => {
               <Card key={index} className="text-center h-full">
                 <CardHeader className="pb-4">
                   <div className="flex justify-center mb-3">
-                    <div className="p-3 bg-blue-100 rounded-full">
-                      <Icon className="h-6 w-6 text-blue-600" />
+                    <div className="p-3 bg-primary/10 rounded-full">
+                      <Icon className="h-6 w-6 text-primary" />
                     </div>
                   </div>
                   <CardTitle className="text-lg">{contact.title}</CardTitle>
@@ -77,8 +77,8 @@ const Contact = () => {
                   )}
                 </CardHeader>
                 <CardContent>
-                  <p className="font-semibold text-gray-900 mb-1">{contact.details}</p>
-                  <p className="text-sm text-gray-600">{contact.description}</p>
+                  <p className="font-semibold text-foreground mb-1">{contact.details}</p>
+                  <p className="text-sm text-muted-foreground">{contact.description}</p>
                 </CardContent>
               </Card>
             );
@@ -105,15 +105,15 @@ const Contact = () => {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Monday - Friday</span>
-                  <span className="text-sm text-gray-600">9:00 AM - 6:00 PM</span>
+                  <span className="text-sm text-muted-foreground">9:00 AM - 6:00 PM</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Saturday</span>
-                  <span className="text-sm text-gray-600">10:00 AM - 4:00 PM</span>
+                  <span className="text-sm text-muted-foreground">10:00 AM - 4:00 PM</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Sunday</span>
-                  <span className="text-sm text-gray-600">Closed</span>
+                  <span className="text-sm text-muted-foreground">Closed</span>
                 </div>
               </CardContent>
             </Card>
@@ -121,16 +121,16 @@ const Contact = () => {
             {/* Emergency Contacts */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-red-600">Emergency Contacts</CardTitle>
+                <CardTitle className="text-destructive">Emergency Contacts</CardTitle>
                 <CardDescription>
                   For urgent matters outside business hours
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {emergencyContacts.map((emergency, index) => (
-                  <div key={index} className="border-l-4 border-red-500 pl-4">
+                  <div key={index} className="border-l-4 border-destructive pl-4">
                     <h4 className="font-semibold text-sm">{emergency.title}</h4>
-                    <p className="text-sm text-gray-600">{emergency.number}</p>
+                    <p className="text-sm text-muted-foreground">{emergency.number}</p>
                     <Badge variant="destructive" className="text-xs">
                       {emergency.time}
                     </Badge>

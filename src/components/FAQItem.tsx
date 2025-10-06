@@ -18,7 +18,7 @@ const FAQItem = ({ question, answer, category, isPopular = false }: FAQItemProps
     <Card className="mb-4 overflow-hidden transition-all duration-200 hover:shadow-md">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+        className="w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset"
       >
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -32,13 +32,13 @@ const FAQItem = ({ question, answer, category, isPopular = false }: FAQItemProps
                 </Badge>
               )}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 pr-4">{question}</h3>
+            <h3 className="text-lg font-semibold text-foreground pr-4">{question}</h3>
           </div>
           <div className="flex-shrink-0 ml-4">
             {isOpen ? (
-              <ChevronUp className="h-5 w-5 text-gray-500" />
+              <ChevronUp className="h-5 w-5 text-muted-foreground" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-gray-500" />
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
             )}
           </div>
         </div>
@@ -46,7 +46,7 @@ const FAQItem = ({ question, answer, category, isPopular = false }: FAQItemProps
       
       {isOpen && (
         <CardContent className="px-6 pb-6 pt-0">
-          <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+          <div className="text-muted-foreground leading-relaxed whitespace-pre-line">
             {answer}
           </div>
         </CardContent>

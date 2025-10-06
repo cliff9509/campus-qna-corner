@@ -106,14 +106,14 @@ const Accommodation = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-8 bg-muted rounded w-1/4"></div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-96 bg-gray-200 rounded"></div>
+                <div key={i} className="h-96 bg-muted rounded"></div>
               ))}
             </div>
           </div>
@@ -123,26 +123,26 @@ const Accommodation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Student Accommodation
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Find the perfect hostel that fits your budget and lifestyle. From single rooms to shared spaces, 
             we have options for every student.
           </p>
         </div>
 
         {/* Search and Filter Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-card rounded-lg shadow-sm p-6 mb-8 border">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 type="text"
                 placeholder="Search hostels..."
@@ -195,7 +195,7 @@ const Accommodation = () => {
 
         {/* Results Summary */}
         <div className="mb-6">
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Showing {filteredAccommodations.length} of {accommodations.length} accommodations
           </p>
         </div>
@@ -237,8 +237,8 @@ const Accommodation = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-400">No image</span>
+                  <div className="w-full h-48 bg-muted flex items-center justify-center">
+                    <span className="text-muted-foreground">No image</span>
                   </div>
                 )}
                 {!accommodation.available && (
@@ -265,16 +265,16 @@ const Accommodation = () => {
                     </CardDescription>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-2xl font-bold text-primary">
                       ${accommodation.price}
                     </div>
-                    <div className="text-sm text-gray-500">per month</div>
+                    <div className="text-sm text-muted-foreground">per month</div>
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent>
-                <p className="text-gray-600 mb-4">{accommodation.description}</p>
+                <p className="text-muted-foreground mb-4">{accommodation.description}</p>
                 
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-1">
@@ -326,10 +326,10 @@ const Accommodation = () => {
 
         {filteredAccommodations.length === 0 && !loading && (
           <div className="text-center py-12">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               No accommodations found
             </h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Try adjusting your search criteria to find more options.
             </p>
           </div>

@@ -173,16 +173,16 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Student Marketplace
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Buy and sell second-hand goods at student-friendly prices. From textbooks to electronics, 
             find everything you need for university life.
           </p>
@@ -198,10 +198,10 @@ const Marketplace = () => {
 
           <TabsContent value="all" className="mt-6">
             {/* Search and Filter Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div className="bg-card rounded-lg shadow-sm p-6 mb-8 border">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
                     type="text"
                     placeholder="Search items..."
@@ -254,7 +254,7 @@ const Marketplace = () => {
 
             {/* Results Summary */}
             <div className="mb-6">
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Showing {filteredItems.length} of {allItems.length} items
               </p>
             </div>
@@ -262,7 +262,7 @@ const Marketplace = () => {
 
           <TabsContent value="recent" className="mt-6">
             <div className="mb-6">
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Recently posted items (last 7 days)
               </p>
             </div>
@@ -270,7 +270,7 @@ const Marketplace = () => {
 
           <TabsContent value="my-items" className="mt-6">
             <div className="mb-6">
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Your marketplace listings ({userItems.length} items)
               </p>
             </div>
@@ -280,7 +280,7 @@ const Marketplace = () => {
         {/* Items Grid */}
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">Loading items...</p>
+            <p className="text-muted-foreground">Loading items...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -346,25 +346,25 @@ const Marketplace = () => {
                 </CardHeader>
 
                 <CardContent>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{item.description}</p>
                   
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="h-4 w-4" />
                       <span>{item.seller_name}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4" />
                       <span>{item.location}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
                       <span>{getTimeAgo(item.created_at)}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
                       <Heart className="h-4 w-4" />
                       <span>{item.likes}</span>
                     </div>
@@ -411,21 +411,21 @@ const Marketplace = () => {
 
         {filteredItems.length === 0 && (
           <div className="text-center py-12">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               No items found
             </h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Try adjusting your search criteria to find more items.
             </p>
           </div>
         )}
 
         {/* Call to Action */}
-        <div className="bg-blue-50 rounded-lg p-8 mt-12 text-center">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="bg-muted/50 rounded-lg p-8 mt-12 text-center border">
+          <h3 className="text-2xl font-bold text-foreground mb-4">
             Got something to sell?
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             Turn your unused items into cash and help fellow students save money.
           </p>
           <Button size="lg" asChild>

@@ -94,19 +94,19 @@ const FAQs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header Section */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-blue-100 rounded-full">
-              <HelpCircle className="h-8 w-8 text-blue-600" />
+            <div className="p-3 bg-primary/10 rounded-full">
+              <HelpCircle className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <h1 className="text-4xl font-bold text-foreground mb-4">Frequently Asked Questions</h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Find answers to common questions about our accommodation and marketplace services.
             Can't find what you're looking for? Contact our support team.
           </p>
@@ -144,7 +144,7 @@ const FAQs = () => {
           <div className="lg:col-span-3">
             {filteredFAQs.length > 0 ? (
               <div>
-                <p className="text-gray-600 mb-6">
+                <p className="text-muted-foreground mb-6">
                   Showing {filteredFAQs.length} question{filteredFAQs.length !== 1 ? 's' : ''}
                   {searchQuery && ` for "${searchQuery}"`}
                   {selectedCategory !== "All" && ` in ${selectedCategory}`}
@@ -162,9 +162,9 @@ const FAQs = () => {
             ) : (
               <Card className="text-center py-12">
                 <CardContent>
-                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No FAQs Found</h3>
-                  <p className="text-gray-600 mb-4">
+                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No FAQs Found</h3>
+                  <p className="text-muted-foreground mb-4">
                     We couldn't find any FAQs matching your search criteria.
                   </p>
                   <Button onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}>
@@ -231,10 +231,10 @@ const FAQs = () => {
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-muted transition-colors"
                     >
                       <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 text-gray-600" />
+                        <Icon className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{category}</span>
                       </div>
                       <Badge variant="secondary">{count}</Badge>
