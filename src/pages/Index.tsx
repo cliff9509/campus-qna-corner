@@ -1,4 +1,3 @@
-
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +18,9 @@ import {
   Zap,
   Heart
 } from "lucide-react";
+import heroBg from "@/assets/hero-bg.jpg";
+import patternBg from "@/assets/pattern-bg.jpg";
+import ctaBg from "@/assets/cta-bg.jpg";
 
 const Index = () => {
   const features = [
@@ -78,7 +80,10 @@ const Index = () => {
       
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 lg:py-32">
-        <div className="absolute inset-0 bg-gradient-hero opacity-50"></div>
+        <div className="absolute inset-0 opacity-30">
+          <img src={heroBg} alt="" className="w-full h-full object-cover" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-primary/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center animate-fade-in">
             <Badge className="mb-6 px-6 py-2 bg-primary/10 text-primary border-primary/20 animate-pulse-glow" variant="outline">
@@ -129,8 +134,11 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 bg-card overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <img src={patternBg} alt="" className="w-full h-full object-cover" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
               Everything Students Need
@@ -259,8 +267,12 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-primary">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0">
+          <img src={ctaBg} alt="" className="w-full h-full object-cover" />
+        </div>
+        <div className="absolute inset-0 bg-primary/80"></div>
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             Ready to Transform Your Student Experience?
           </h2>
